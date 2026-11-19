@@ -1,0 +1,7 @@
+{
+  "name": "gta6-nyc",
+  "private": true,
+  "type": "module",
+  "engines": { "node": ">=20" },
+  "scripts": { "dev": "node dev.mjs" }
+}
