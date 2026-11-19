@@ -7,7 +7,7 @@
 <meta name="description" content="Daily NYC motor vehicle crashes before and after the release of Grand Theft Auto VI.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Coral+Pixels&family=VT323&display=swap" rel="stylesheet">
 <style>
   :root {
     --paper: #ECE5D3;
@@ -23,51 +23,72 @@
   html { background: var(--paper); }
   body {
     margin: 0; color: var(--ink);
-    font: 13px/1.45 "IBM Plex Mono", ui-monospace, Menlo, monospace;
+    font: 16px/1.3 "VT323", monospace;
     background-color: var(--paper);
+    background-image: var(--paper-img);
+    background-attachment: fixed;
+  }
+  :root {
     /* mild paper grain + faint aging, like an old carbon-copy report */
-    background-image:
+    --paper-img:
       radial-gradient(ellipse at 20% 0%, rgba(255,255,255,.35), transparent 60%),
       radial-gradient(ellipse at 100% 100%, rgba(140,110,60,.10), transparent 55%),
       url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 .35  0 0 0 0 .30  0 0 0 0 .22  0 0 0 .22 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
-    background-attachment: fixed;
   }
   main { max-width: 1040px; margin: 0 auto; padding: 24px 16px 48px; }
 
+  /* Title: Coral Pixels. Chart, key, toggle: VT323 (body default). Methodology: Arial. */
+  h1 { font-family: "Coral Pixels", serif; font-weight: 400; font-style: normal; }
+  .toggle button, .key, svg text { font-family: "VT323", monospace; font-weight: 400; font-style: normal; }
+  details, details code { font-family: Arial, Helvetica, sans-serif; }
   .sheet { border: 2px solid var(--rule); background: rgba(255,252,242,.28); }
   .bar { display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: center; justify-content: space-between;
          padding: 12px; border-bottom: 2px solid var(--rule); }
 
-  h1 { margin: 0; font-size: clamp(22px, 4.4vw, 40px); line-height: 1.02; font-weight: 700; letter-spacing: -.01em; text-transform: uppercase; }
+  h1 { margin: 0; font-size: clamp(22px, 4.4vw, 40px); line-height: 1.02; letter-spacing: 0; text-transform: uppercase; }
   h1 .grad { background: linear-gradient(90deg, var(--g1), var(--g2) 55%, var(--g3)); padding: 0 .18em; -webkit-box-decoration-break: clone; box-decoration-break: clone; }
 
   .toggle { display: inline-flex; border: 2px solid var(--rule); }
-  .toggle button { font: inherit; font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
-                   background: transparent; color: var(--ink); border: 0; padding: 6px 10px; cursor: pointer; }
+  .toggle button { font-size: 18px; letter-spacing: .04em; text-transform: uppercase;
+                   background: transparent; color: var(--ink); border: 0; padding: 3px 10px; cursor: pointer; }
   .toggle button + button { border-left: 2px solid var(--rule); }
   .toggle button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
   .toggle button:focus-visible { outline: 3px solid var(--g2); outline-offset: 2px; }
 
-  .key { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; }
+  .key { font-size: 18px; text-transform: uppercase; letter-spacing: .04em; }
   .key i { display: inline-block; width: 18px; height: 12px; vertical-align: -2px; margin-right: 6px; border: 1px solid var(--ink-2);
            background: repeating-linear-gradient(135deg, rgba(27,26,23,.35) 0 1px, transparent 1px 5px); }
 
   #next:not(:empty)::before { content: "·"; margin: 0 10px; }
   .chart { position: relative; padding: 8px 4px 4px; border-bottom: 2px solid var(--rule); }
   .chart svg { display: block; width: 100%; overflow: visible; }
-  .status { position: absolute; inset: 0; display: grid; place-items: center; font-size: 12px; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-2); text-align: center; padding: 0 16px; }
+  .status { position: absolute; inset: 0; display: grid; place-items: center; font-size: 20px; text-transform: uppercase; letter-spacing: .04em; color: var(--ink); text-align: center; padding: 0 16px; }
+  .status.wait { visibility: hidden; }   /* avoid a flash when the data is cached and arrives instantly */
+  .load { display: grid; justify-items: center; gap: 8px; }
+  .steps { display: flex; gap: 6px; }
+  .steps span { width: 44px; height: 14px; border: 2px solid var(--ink); }
+  .steps span.done { background: var(--ink); }
+  .steps span.active { background: repeating-linear-gradient(135deg, var(--ink) 0 3px, transparent 3px 7px); background-size: 20px 20px; animation: crawl .6s linear infinite; }
+  @keyframes crawl { to { background-position: 20px 0; } }
+  .load-meta, .load-hint { font-size: 16px; color: var(--ink-2); }
+  .status.error .steps span.active { background: none; border-style: dashed; animation: none; }
+  @media (prefers-reduced-motion: reduce) { .steps span.active { animation: none; } }
 
-  svg text { font-family: "IBM Plex Mono", ui-monospace, monospace; fill: var(--ink-2); font-size: 10px; }
-  svg .y-title { fill: var(--ink); font-weight: 700; font-size: 11px; letter-spacing: .08em; }
-  svg .launch-label { fill: var(--ink); font-weight: 700; font-size: 11px; letter-spacing: .06em; }
-  svg .val { fill: var(--ink); font-weight: 700; font-size: 13px; }
-  svg .val-sub { fill: var(--ink-2); font-size: 10px; }
+  svg text { fill: var(--ink-2); font-size: 15px; }
+  svg .y-title { fill: var(--ink); font-size: 17px; letter-spacing: .04em; }
+  svg .launch-label { fill: var(--ink); font-size: 17px; letter-spacing: .04em; }
+  svg .val { fill: var(--ink); font-size: 24px; }
+  svg .val-sub { fill: var(--ink-2); font-size: 15px; }
   svg .tip-bg { fill: var(--ink); }
-  svg .tip { fill: var(--paper); font-weight: 700; font-size: 11px; }
+  svg .tip { fill: var(--paper); font-size: 17px; }
+  svg .ping { transform-box: fill-box; transform-origin: center; animation: ping 2.4s ease-out infinite; }
+  @keyframes ping { 0% { transform: scale(1); opacity: .6; } 80%, 100% { transform: scale(3.6); opacity: 0; } }
+  @media (prefers-reduced-motion: reduce) { svg .ping { animation: none; opacity: 0; } }
 
   details { padding: 10px 12px; }
-  summary { cursor: pointer; font-weight: 700; text-transform: uppercase; letter-spacing: .08em; font-size: 12px; }
+  summary { cursor: pointer; text-transform: uppercase; letter-spacing: .06em; font-size: 12px; font-weight: 700; }
   details[open] summary { margin-bottom: 8px; }
+  details { font-size: 14px; line-height: 1.45; }
   details p, details li { max-width: 78ch; margin: 0 0 8px; }
   details ul { padding-left: 18px; margin: 0 0 8px; }
   a { color: inherit; text-underline-offset: 2px; }
@@ -87,13 +108,21 @@
       <span class="key"><i></i>Still being reported<span id="next"></span></span>
     </div>
 
-    <div class="chart" id="chart"><svg role="img" aria-label="Line chart of NYC crashes per day"></svg><div class="status">Retrieving records…</div></div>
+    <div class="chart" id="chart"><svg role="img" aria-label="Line chart of NYC crashes per day"></svg><div class="status" role="status" aria-live="polite">
+      <div class="load">
+        <div class="steps" aria-hidden="true"><span></span><span></span><span></span><span></span></div>
+        <div class="load-step">Requesting crash counts</div>
+        <div class="load-meta"><span class="load-n">Step 1 of 4</span> · <span class="load-time">0.0s</span></div>
+        <div class="load-hint" hidden>Source is slow right now. Waiting on NYC Open Data.</div>
+      </div>
+    </div></div>
 
     <details>
       <summary>Methodology</summary>
       <p><b>Data:</b> every police-reported motor vehicle crash in NYC, counted per calendar day (NYC Open Data, <a href="https://data.cityofnewyork.us/d/h9gi-nx95" target="_blank" rel="noopener">Motor Vehicle Collisions – Crashes</a>, field <code>crash_date</code>). NYPD reports a crash when someone is hurt or killed, or damage is at least $1,000. GTA VI was released at 12:00 AM ET on Nov 19, 2026.</p>
       <p><b>Hatched zone:</b> crashes reach the city's data portal a few days late. A day is treated as not final when it is under 10 days old and its count is below 75% of the median for the same weekday over the previous 4 weeks. That day and every day after it are hatched, and the current day is always hatched. A drop inside the hatched zone is most likely missing records, not fewer crashes. Days with no records yet are not plotted.</p>
       <p><b>7-day average:</b> the trailing mean of the 7 days ending on each date, drawn only where all 7 days are final. The y-axis starts at zero.</p>
+      <p><b>Today's estimate (pulsing dot):</b> a straight line fitted to the last 14 final 7-day averages, extended to the current time. It is a projection, not data. It smooths over weekday swings, so a single day can land well above or below it. It is replaced by the real count once that day is reported.</p>
       <ul>
         <li>This chart shows timing only. It cannot show that GTA VI caused any change. Weather, holidays and traffic volume all move crash counts.</li>
         <li>Recently posted days may still be revised.</li>
@@ -141,14 +170,26 @@
     return out;
   }
 
+  // Least-squares line through the last 14 final 7-day averages, evaluated at fractional day index x.
+  function estimateNow(days, x) {
+    if (x == null) return null;
+    const pts = days.map((d, i) => [i, d.avg]).filter(p => p[1] != null).slice(-14);
+    if (pts.length < 7) return null;
+    const k = pts.length, mx = pts.reduce((s, p) => s + p[0], 0) / k, my = pts.reduce((s, p) => s + p[1], 0) / k;
+    const sxx = pts.reduce((s, p) => s + (p[0] - mx) ** 2, 0), sxy = pts.reduce((s, p) => s + (p[0] - mx) * (p[1] - my), 0);
+    const v = my + (sxy / sxx) * (x - mx);
+    return v > 0 ? v : null;
+  }
+
   function render() {
     if (!json) return;
     const box = document.getElementById("chart");
     const svg = box.querySelector("svg");
-    const W = box.clientWidth - 8;
+    const cs = getComputedStyle(box);
+    const W = box.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
     if (W < 160) return;
     const H = Math.max(260, Math.min(420, W * 0.42));
-    const m = { l: 44, r: 44, t: 34, b: 26 };
+    const m = { l: 44, r: 44, t: 36, b: 30 };
     svg.setAttribute("viewBox", `0 0 ${W} ${H}`); svg.setAttribute("height", H);
     svg.innerHTML = "";
 
@@ -176,7 +217,7 @@
     days.forEach((d, i) => {
       if (dow(d.date) !== 1) return;
       el("line", { x1: m.l + i * bw, x2: m.l + i * bw, y1: H - m.b, y2: H - m.b + 4, stroke: "var(--ink)" }, svg);
-      el("text", { x: m.l + i * bw + 2, y: H - m.b + 15 }, svg).textContent = fmtDate(d.date);
+      el("text", { x: m.l + i * bw + 2, y: H - m.b + 18 }, svg).textContent = fmtDate(d.date);
     });
 
     // hatched "still being reported" zone
@@ -220,10 +261,12 @@
 
     // "now" line: current NYC time, placed inside today's day band
     const ti = days.findIndex(d => d.date === json.today);
+    let nowIdx = null;
     if (ti >= 0) {
       const p = Object.fromEntries(new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", hour: "numeric", minute: "numeric", hourCycle: "h23" })
         .formatToParts(new Date()).map(x => [x.type, +x.value]));
-      const nx = m.l + (ti + (p.hour * 60 + p.minute) / 1440) * bw;
+      nowIdx = ti + (p.hour * 60 + p.minute) / 1440 - 0.5;   // fractional day index (band centers are integers)
+      const nx = xi(nowIdx);
       el("line", { x1: nx, x2: nx, y1: m.t - 4, y2: H - m.b, stroke: "var(--ink)", "stroke-width": 1.5, "stroke-dasharray": "3 2" }, svg);
       el("text", { x: nx + 5, y: 30, class: "launch-label" }, svg).textContent = "NOW";
     }
@@ -235,20 +278,32 @@
     if (last >= 0) {
       const lx = xi(last), ly = y(val(days[last]));
       el("circle", { cx: lx, cy: ly, r: 4.5, fill: "var(--line)", stroke: "var(--paper)", "stroke-width": 1.5 }, endLabel);
-      el("text", { x: lx - 8, y: ly - 18, "text-anchor": "end", class: "val" }, endLabel).textContent = fmtN(val(days[last]));
+      el("text", { x: lx - 8, y: ly - 22, "text-anchor": "end", class: "val" }, endLabel).textContent = fmtN(val(days[last]));
       el("text", { x: lx - 8, y: ly - 8, "text-anchor": "end", class: "val-sub" }, endLabel).textContent = fmtDate(days[last].date);
+    }
+
+    // estimate for today: straight-line trend of the last 14 final 7-day averages, extended to now
+    const est = estimateNow(days, nowIdx);
+    if (est != null && last >= 0) {
+      const lx = xi(last), ly = y(val(days[last])), ex = xi(nowIdx), ey = y(est);
+      el("path", { d: `M${lx},${ly}L${ex},${ey}`, stroke: "var(--line)", "stroke-width": 2, "stroke-dasharray": "2 4", "stroke-linecap": "round", fill: "none" }, svg);
+      el("circle", { cx: ex, cy: ey, r: 4.5, class: "ping", fill: "none", stroke: "var(--line)", "stroke-width": 2 }, svg);
+      el("circle", { cx: ex, cy: ey, r: 4.5, fill: "var(--paper)", stroke: "var(--line)", "stroke-width": 2 }, svg);
+      el("text", { x: ex - 8, y: ey + 26, "text-anchor": "end", class: "val" }, endLabel).textContent = fmtN(est);
+      el("text", { x: ex - 8, y: ey + 40, "text-anchor": "end", class: "val-sub" }, endLabel).textContent = "EST. TODAY";
     }
 
     // hover: guide + tooltip with the number
     const guide = el("line", { y1: m.t, y2: H - m.b, stroke: "var(--ink)", "stroke-width": 1, opacity: 0 }, svg);
     const tip = el("g", { opacity: 0 }, svg);
-    const tipBg = el("rect", { class: "tip-bg", rx: 0, height: 20 }, tip);
-    const tipTx = el("text", { class: "tip", y: 14 }, tip);
+    const tipBg = el("rect", { class: "tip-bg", rx: 0, height: 22 }, tip);
+    const tipTx = el("text", { class: "tip", y: 16 }, tip);
     const hit = el("rect", { x: m.l, y: 0, width: Math.max(0, W - m.l - m.r), height: H, fill: "transparent" }, svg);
     const show = i => {
       const d = days[i], v = val(d);
       let text;
-      if (d.empty) text = `${fmtDate(d.date)} · NO RECORDS YET`;
+      if (i === ti && est != null) text = `${fmtDate(d.date)} · ${fmtN(est)} EST. (TREND)`;
+      else if (d.empty) text = `${fmtDate(d.date)} · NO RECORDS YET`;
       else if (mode === "avg") text = v != null ? `${fmtDate(d.date)} · ${fmtN(v)} AVG · ${fmtN(d.n)} DAY` : `${fmtDate(d.date)} · ${fmtN(d.n)} DAY`;
       else text = `${fmtDate(d.date)} · ${fmtN(d.n)} CRASHES`;
       if (d.provisional && !d.empty) text += " · NOT FINAL";
@@ -283,16 +338,42 @@
       : "Next update ~" + next.toLocaleString("en-US", { timeZone: "America/New_York", month: "short", day: "numeric", hour: "numeric" }) + " ET";
   }
 
+  // Loading state reports real stages of the request (not a simulated percentage):
+  // 1 request sent → 2 response arriving → 3 checking records → 4 drawing.
   async function load() {
     const status = document.querySelector("#chart .status");
+    const bars = status.querySelectorAll(".steps span");
+    const stepEl = status.querySelector(".load-step"), nEl = status.querySelector(".load-n");
+    const timeEl = status.querySelector(".load-time"), hintEl = status.querySelector(".load-hint");
     document.querySelector("#chart svg").setAttribute("height", 300);
+    status.classList.add("wait");
+    const reveal = setTimeout(() => status.classList.remove("wait"), 250);
+    const t0 = performance.now();
+    const tick = setInterval(() => {
+      const s = (performance.now() - t0) / 1000;
+      timeEl.textContent = s.toFixed(1) + "s";
+      if (s > 5) hintEl.hidden = false;
+    }, 100);
+    const stage = (i, text) => {
+      bars.forEach((b, k) => { b.className = k < i ? "done" : k === i ? "active" : ""; });
+      stepEl.textContent = text; nEl.textContent = `Step ${i + 1} of 4`;
+    };
+    const stop = () => { clearInterval(tick); clearTimeout(reveal); };
     try {
+      stage(0, "Requesting crash counts");
       const r = await fetch("/api/crashes");
+      stage(1, "Receiving data");
       const j = await r.json();
+      stage(2, "Checking records");
       if (!r.ok || j.error) throw new Error(j.error || r.status);
-      json = j; status.remove(); render(); nextUpdate();
+      stage(3, "Drawing chart");
+      await new Promise(requestAnimationFrame);
+      json = j; stop(); status.remove(); render(); nextUpdate();
     } catch {
-      status.textContent = "Data unavailable — source did not respond or failed checks. No numbers shown.";
+      stop();
+      status.classList.remove("wait"); status.classList.add("error");
+      stepEl.textContent = "Data unavailable — source did not respond or failed checks. No numbers shown.";
+      hintEl.hidden = true;
     }
   }
 

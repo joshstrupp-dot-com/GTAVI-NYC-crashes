@@ -1,10 +1,14 @@
 // Local preview server (not used on Vercel). Serves index.html and the /api
 // handlers with a minimal Vercel-style res shim, plus an in-memory cache so
-// the slow camera query only runs once per hour locally.
+// NYC Open Data is queried at most once per hour locally.
 import http from "node:http";
 import { readFile } from "node:fs/promises";
 
-const PORT = Number(process.env.PORT || 3000);
+// Optional flags for testing the loading state: --port=3001 --slow=4000 (ms delay) --fail
+const arg = k => (process.argv.find(x => x.startsWith(`--${k}`)) || "").split("=")[1];
+const PORT = Number(arg("port") || process.env.PORT || 3000);
+const SLOW = Number(arg("slow") || 0);
+const FAIL = process.argv.includes("--fail");
 const cache = new Map();
 
 function shim(res, done) {
@@ -20,6 +24,8 @@ function shim(res, done) {
 http.createServer(async (req, res) => {
   const path = new URL(req.url, "http://x").pathname;
   if (path.startsWith("/api/")) {
+    if (SLOW) await new Promise(r => setTimeout(r, SLOW));
+    if (FAIL) { res.writeHead(502, { "Content-Type": "application/json" }); return res.end('{"error":"simulated failure"}'); }
     const name = path.slice(5).replace(/[^a-z]/g, "");
     const hit = cache.get(name);
     if (hit && Date.now() - hit.t < 3600e3) { res.writeHead(hit.status, hit.headers); return res.end(hit.body); }
