@@ -5,9 +5,23 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>NYC Crashes vs GTA VI</title>
 <meta name="description" content="Daily NYC motor vehicle crashes before and after the release of Grand Theft Auto VI.">
+<link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/assets/favicon-192.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/assets/favicon-180.png">
+<!-- Share preview. Some platforms need an absolute og:image URL: set it to the deployed domain. -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="NYC crashes, before & after GTA VI">
+<meta property="og:description" content="Daily NYC motor vehicle crashes around the Grand Theft Auto VI release, from NYC Open Data.">
+<meta property="og:image" content="/assets/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Line chart of daily NYC crashes with the GTA VI release marked">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="/assets/og.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Coral+Pixels&family=VT323&display=swap" rel="stylesheet">
+<script>/* ?og = share-image capture mode (title + chart only) */ if (/[?&]og\b/.test(location.search)) document.documentElement.classList.add("og");</script>
 <style>
   :root {
     --paper: #ECE5D3;
@@ -92,6 +106,13 @@
   details p, details li { max-width: 78ch; margin: 0 0 8px; }
   details ul { padding-left: 18px; margin: 0 0 8px; }
   a { color: inherit; text-underline-offset: 2px; }
+
+  /* share-image capture mode (/?og), screenshotted at 1200x630 into assets/og.jpg */
+  html.og body { min-height: 100vh; }
+  html.og main { max-width: none; padding: 62px 30px; }
+  html.og .bar:nth-of-type(2), html.og details { display: none; }
+  html.og .chart { border-bottom: 0; }
+  html.og svg .ping { animation: none; opacity: 0; }
 </style>
 </head>
 <body>

@@ -38,6 +38,14 @@ http.createServer(async (req, res) => {
     } catch { res.writeHead(404); res.end("not found"); }
     return;
   }
+  // static assets (png/jpg only), e.g. /assets/favicon-32.png
+  const asset = path.match(/^\/assets\/([\w.-]+\.(png|jpg))$/);
+  if (asset) {
+    try {
+      const buf = await readFile(new URL(`./assets/${asset[1]}`, import.meta.url));
+      res.writeHead(200, { "Content-Type": asset[2] === "png" ? "image/png" : "image/jpeg" }); return res.end(buf);
+    } catch { res.writeHead(404); return res.end("not found"); }
+  }
   try {
     const html = await readFile(new URL("./index.html", import.meta.url));
     res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" }); res.end(html);
